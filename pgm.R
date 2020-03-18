@@ -1,3 +1,10 @@
+
+# Download data from data gouv
+download.file("https://www.data.gouv.fr/fr/datasets/r/fa9b8fc8-35d5-4e24-90eb-9abe586b0fa5", 
+              destfile = "data/covid19.csv",  quiet = FALSE, mode = "w",
+              cacheOK = TRUE)
+
+
 # Import data
 library(readr)
 covid_data <- read.csv("data/covid19.csv", stringsAsFactors = FALSE)
