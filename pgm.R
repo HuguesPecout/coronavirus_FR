@@ -16,7 +16,7 @@ colnames(covid_data) <- as.character(covid_data[1,])
 covid_data <- covid_data[-1,]
 
 # Select FR metropolitaine
-covid_data <- covid_data[c(1:13),-13]
+covid_data <- covid_data[c(1:13),-(length(covid_data))]
 # Ajout Code REG
 covid_data$ID <- c("84", "27", "53", "24", "94", "44", "32", "11", "28", "75", "76", "52", "93")
 
@@ -74,7 +74,7 @@ layoutLayer(title="Nombre de cas confirmés du Coronavirus en France métroplita
 }
 dev.off()
 
-system("magick -delay 80 *.png example_1.gif")
+system("magick -delay 110 *.png example_1.gif")
 
 
 # to not leave the directory with the single jpeg files
