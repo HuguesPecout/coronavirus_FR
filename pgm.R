@@ -55,7 +55,11 @@ data <- merge(data, POPT, by="ID" )
 data$tx <- data$nb / data$PTOT *10000
 
 par(mar=c(0,0,1.2,0))
-plot(st_geometry(data), lwd=0.1, col= "grey95", border = "grey75")
+plot(st_geometry(data), col= NA, border = NA)
+layoutLayer(title="Nombre de cas confirmés du Coronavirus en France métroplitaine", 
+            sources = "Sources: Sante publique france", 
+            scale = NULL, tabtitle = TRUE, frame = TRUE, bg = "grey60")
+plot(st_geometry(data), lwd=0.1, col= "grey85", border = "grey75", add=TRUE)
 propSymbolsChoroLayer(x = data,var = "nb", inches = 0.3,fixmax = maxi,
                       var2 = "tx", breaks = c(0,0.1, 0.5,1,2,4,8,16), 
                       col = carto.pal(pal1 = "orange.pal", n1 = 7), border = "white", lwd = 0.1,
@@ -64,12 +68,7 @@ propSymbolsChoroLayer(x = data,var = "nb", inches = 0.3,fixmax = maxi,
                       legend.var2.values.rnd = 1,
                       legend.var2.pos = c(113951.5, 6272579), 
                       legend.var2.title.txt = "Tx de contagion \n (10 000 hab)")
-
 text(1011838, 7058524, jour, font=4, cex=1.5)
-layoutLayer(title="Nombre de cas confirmés du Coronavirus en France métroplitaine", 
-            sources = "Sources: Sante publique france", 
-            scale = NULL, tabtitle = TRUE, frame = TRUE)
-
 
 }
 dev.off()
