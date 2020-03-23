@@ -10,6 +10,9 @@ library(readr)
 covid_data <- read.csv("data/covid19.csv", stringsAsFactors = FALSE)
 covid_data <- as.data.frame(t(covid_data), stringsAsFactors = FALSE)
 
+# Delete column doublon
+covid_data <- covid_data[, -16]
+
 # Transform data frame
 covid_data$reg <- rownames(covid_data)
 colnames(covid_data) <- as.character(covid_data[1,])
