@@ -76,7 +76,7 @@ text(1011838, 7058524, jour, font=4, cex=1.5)
 }
 dev.off()
 
-system("magick -delay 110 *.png example_1.gif")
+system("magick -delay 110 *.png Nb_cas_confirmé_region_Sante_pub_fr.gif")
 
 
 # to not leave the directory with the single jpeg files
