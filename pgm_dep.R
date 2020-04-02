@@ -172,8 +172,8 @@ for (y in 2:nbfiles){
   
   par(mar=c(0,0,1.2,0))
   plot(st_geometry(FR_Metro), col= NA, border = NA)
-  layoutLayer(title="Nombre de cas confirmés du Coronavirus en France métroplitaine - selon kalisio", 
-              sources = "Sources: https://www.data.gouv.fr/fr/datasets/donnees-cartographiques-concernant-lepidemie-de-covid-19/", 
+  layoutLayer(title="Nombre de cas confirmés du Coronavirus en France métroplitaine - (Données peu fiables)", 
+              sources = "Sources: Kalisio", 
               scale = NULL, tabtitle = TRUE, frame = TRUE, bg = "grey60")
   plot(st_geometry(FR_Metro), lwd=0.1, col= "grey85", border = "grey75", add=TRUE)
   propSymbolsLayer(x = tab,var = jour[1], 
@@ -241,8 +241,8 @@ for (y in 2:nbfiles2){
   
   par(mar=c(0,0,1.2,0))
   plot(st_geometry(FR_Metro), col= NA, border = NA)
-  layoutLayer(title="Nombre de décés du Coronavirus en France métroplitaine - selon kalisio", 
-              sources = "Sources: https://www.data.gouv.fr/fr/datasets/donnees-cartographiques-concernant-lepidemie-de-covid-19/", 
+  layoutLayer(title="Nombre de décés du Coronavirus en France métroplitaine - (Données peu fiables)", 
+              sources = "Sources: kalisio", 
               scale = NULL, tabtitle = TRUE, frame = TRUE, bg = "grey60")
   plot(st_geometry(FR_Metro), lwd=0.1, col= "grey85", border = "grey75", add=TRUE)
   propSymbolsLayer(x = tab,var = jour[1], 
