@@ -1,8 +1,7 @@
 # Download data from data gouv
-download.file("https://www.data.gouv.fr/fr/datasets/r/b94ba7af-c0d6-4055-a883-61160e412115", 
+download.file("https://www.data.gouv.fr/fr/datasets/r/63352e38-d353-4b54-bfd1-f1b3ee1cabd7", 
               destfile = "data_dep/covid19.csv",  quiet = FALSE, mode = "w",
               cacheOK = TRUE)
-
 
 # Import data
 library(readr)
@@ -126,39 +125,55 @@ file.remove(list.files(pattern=".png"))
 
 #### CARTE CAS
 # data -> https://www.data.gouv.fr/fr/datasets/r/cc6d6e18-dde9-4f83-901d-725ba5e25879
+
+nbfiles <- length(list.files("data_dep/departements-france-polygons/"))
 fr <- st_read("data_dep/departements-france-polygons/departements-france-polygons-2020-03-18.json")
-FR_Metro <- fr[!(fr$Province.State %in% c("Martinique", "Guadeloupe", "Guyane")),-c(1,3,4)]
+FR_Metro <- fr[!(fr$Province.State %in% c("La Réunion",  "Mayotte", "Martinique", "Guadeloupe", "Guyane")),-c(1,3:9)]
+FR_Metro2 <- FR_Metro %>% st_set_geometry(NULL)
 
 
-for (i in 2:19){
-  
+
+for (i in 2:nbfiles){
+
   if (nchar(i)==1){
     link <- paste0("data_dep/departements-france-polygons/departements-france-polygons-2020-03-0", i, ".json")
     data <- st_read(link)} else {
       link <- paste0("data_dep/departements-france-polygons/departements-france-polygons-2020-03-", i, ".json")
       data <- st_read(link)}
-  
-  colnames(data) <- c("REG", "Province.State", paste0("CAS_", i), paste0("DEATH_", i), "geometry")
-  FR_Metro <- merge(FR_Metro, st_drop_geometry(data[, 2:4]), by="Province.State", all.x=TRUE)
-  max_cas <-  max(st_drop_geometry(FR_Metro[,  paste0("CAS_", i)]), na.rm=T)
-  max_dc <-  max(st_drop_geometry(FR_Metro[,  paste0("DEATH_", i)]), na.rm=T)
-}
+
+data <- data[, c("Province.State", "Confirmed", "geometry")]
+colnames(data) <- c("Province.State", paste0("confirmed_", i), "geometry")
+FR_Metro2 <- merge(FR_Metro2, st_drop_geometry(data[, 1:2]), by="Province.State", all.x=TRUE)
+
 
  
+if(i>2){ 
+for (e in 1:nrow(FR_Metro2)){
+if(is.na(FR_Metro2[e,  paste0("confirmed_", i)])){
+FR_Metro2[e,  paste0("confirmed_", i)] <- FR_Metro2[e,  paste0("confirmed_", i-1)]
+}}}
+
+
+# max_dc <-  max(st_drop_geometry(FR_Metro[,  paste0("DEATH_", i)]), na.rm=T)
+}
+ 
+FR_Metro <- merge(FR_Metro, FR_Metro2, by="Province.State", all.x=TRUE)
+max_cas <-  max(FR_Metro2[,  paste0("confirmed_", i)], na.rm=T)
+
 
 # Construction carte cas
-days <- c(2:19)
+days <- c(2:nbfiles)
 v <- 1
 jpeg("example%03d.png")
-for (y in seq(2,36,2)){
+for (y in 2:nbfiles){
 
   tab <- FR_Metro[,c(1, y)]
   jour <- colnames(FR_Metro[y])
   
   par(mar=c(0,0,1.2,0))
   plot(st_geometry(FR_Metro), col= NA, border = NA)
-  layoutLayer(title="Nombre de cas confirmés du Coronavirus en France métroplitaine", 
-              sources = "Sources: Kalisio", 
+  layoutLayer(title="Nombre de cas confirmés du Coronavirus en France métroplitaine - selon kalisio", 
+              sources = "Sources: https://www.data.gouv.fr/fr/datasets/donnees-cartographiques-concernant-lepidemie-de-covid-19/", 
               scale = NULL, tabtitle = TRUE, frame = TRUE, bg = "grey60")
   plot(st_geometry(FR_Metro), lwd=0.1, col= "grey85", border = "grey75", add=TRUE)
   propSymbolsLayer(x = tab,var = jour[1], 
@@ -182,18 +197,52 @@ system("magick -delay 100 *.png Nb_Cas_confimes_dep_kalisio.gif")
 file.remove(list.files(pattern=".png"))
 
 
-# Construction carte cas
+
+
+# Construction carte morts
+FR_Metro <- fr[!(fr$Province.State %in% c("La Réunion", "Mayotte", "Martinique", "Guadeloupe", "Guyane")),-c(1,3:9)]
+FR_Metro2 <- FR_Metro %>% st_set_geometry(NULL)
+
+
+for (i in 5:nbfiles){
+  
+  if (nchar(i)==1){
+    link <- paste0("data_dep/departements-france-polygons/departements-france-polygons-2020-03-0", i, ".json")
+    data <- st_read(link)} else {
+      link <- paste0("data_dep/departements-france-polygons/departements-france-polygons-2020-03-", i, ".json")
+      data <- st_read(link)}
+  
+  data <- data[, c("Province.State", "Deaths", "geometry")]
+  colnames(data) <- c("Province.State", paste0("deaths_", i), "geometry")
+  FR_Metro2 <- merge(FR_Metro2, st_drop_geometry(data[, 1:2]), by="Province.State", all.x=TRUE)
+  
+  
+  
+  if(i>5){ 
+    for (e in 1:nrow(FR_Metro2)){
+      if(is.na(FR_Metro2[e,  paste0("deaths_", i)])){
+        FR_Metro2[e,  paste0("deaths_", i)] <- FR_Metro2[e,  paste0("deaths_", i-1)]
+      }}}
+  
+  
+  # max_dc <-  max(st_drop_geometry(FR_Metro[,  paste0("DEATH_", i)]), na.rm=T)
+}
+
+FR_Metro <- merge(FR_Metro, FR_Metro2, by="Province.State", all.x=TRUE)
+max_dc <-  max(FR_Metro2[,  paste0("deaths_", i)], na.rm=T)
+
+nbfiles2 <-nbfiles-3
+days <- c(5:nbfiles)
 v <- 1
 jpeg("example%03d.png")
-for (y in seq(9,37,2)){
-
+for (y in 2:nbfiles2){
   tab <- FR_Metro[,c(1, y)]
   jour <- colnames(FR_Metro[y])
   
   par(mar=c(0,0,1.2,0))
   plot(st_geometry(FR_Metro), col= NA, border = NA)
-  layoutLayer(title="Nombre de décés du Coronavirus en France métroplitaine", 
-              sources = "Sources: Kalisio", 
+  layoutLayer(title="Nombre de décés du Coronavirus en France métroplitaine - selon kalisio", 
+              sources = "Sources: https://www.data.gouv.fr/fr/datasets/donnees-cartographiques-concernant-lepidemie-de-covid-19/", 
               scale = NULL, tabtitle = TRUE, frame = TRUE, bg = "grey60")
   plot(st_geometry(FR_Metro), lwd=0.1, col= "grey85", border = "grey75", add=TRUE)
   propSymbolsLayer(x = tab,var = jour[1], 
@@ -209,7 +258,7 @@ for (y in seq(9,37,2)){
   text(7.351556, 50.24156, paste0(days[v], " mars"), font=4, cex=1)
   
   v <- v+1
-  
+
 }
 dev.off()
 
