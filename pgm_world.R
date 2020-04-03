@@ -88,7 +88,8 @@ discr <- as.data.frame(discr)
 breaks_cas <- getBreaks(v = discr[, "nb_cas_M"], method = "fisher-jenks")
 breaks_dc <- getBreaks(v = discr[, "nb_dc_M"],  method = "fisher-jenks")
 
-?getBreaks
+# set date in french
+Sys.setlocale('LC_TIME', "French_France")
 
 # Carte animée des CAS
 graph.ani <- function() {
@@ -107,7 +108,7 @@ newdate <- format(cal[i], "%d %B %Y")
 par(mar=c(0.5,0.5,1.2,0.5))
 plot(st_geometry(WORLD2), col = "grey85", border = "grey75", lwd=0.1)
 layoutLayer(title = "Nombre de cas confirmés officiels cumulés",
-            author = "",
+            author = "Auteur : Hugues Pecout (CNRS, FR CIST)",
             sources = "Source : European Centre for Disease Prevention and Control",
             theme = "sand.pal", scale = 3000,tabtitle=TRUE, bg = "grey90")
 plot(st_geometry(WORLD2), lwd=0.1, col= "grey85", border = "grey65", add=TRUE)
@@ -121,13 +122,13 @@ propSymbolsChoroLayer(temp,
                       symbols = "circle", 
                       breaks = breaks_cas,
                       col = carto.pal(pal1 = "sand.pal", n1 = length(breaks_cas)),
-                      legend.var.pos = c(-14510629, 1332030),
+                      legend.var.pos = c(-14837116, 1255491),
                       legend.var2.pos =  c(-17741861, 1380988),
                       legend.var2.values.rnd = 0,
                       border="black",
                       lwd=0.2, colNA = NA,
                       legend.var.title.txt = "Nombre de cas",
-                      legend.var2.title.txt = "Nombre pour  \n 1M d'hab.", 
+                      legend.var2.title.txt = "Nombre de cas pour \n 1M d'habitants", 
                       add = TRUE)
 plot(UE_Mask, lwd = 0.3,  col=NA, add=TRUE)
 text(-851330.7, 9850732, newdate, font=4, cex=1.4)
@@ -140,10 +141,10 @@ legend(x=343751.7, y=-5748705, "Pays touchés", fill="grey55", bty = "n", cex=1)
 
 unlink("Map_world_covid19_cases.gif")
 ani.options(ani.width=800)
-saveGIF(graph.ani(), interval = 1,  cmd.fun = system,  movie.name = "Map_world_covid19_cases.gif")
+saveGIF(graph.ani(), interval = 0.9,  cmd.fun = system,  movie.name = "Map_world_covid19_cases.gif")
 
 
-# Carte animée des CAS
+# Carte animée des DEATHS
 graph.ani_2 <- function() {
   for (i in 12:length(cal)){
 
@@ -159,8 +160,8 @@ graph.ani_2 <- function() {
     par(mar=c(0.5,0.5,1.2,0.5))
     plot(st_geometry(WORLD2), col = "grey85", border = "grey75", lwd=0.1)
 
-    layoutLayer(title = "Nombre de décés officiels cumulés",
-                author = "",
+    layoutLayer(title = "Nombre de décès officiels cumulés",
+                author = "Auteur : Hugues Pecout (CNRS, FR CIST)",
                 sources = "Source : European Centre for Disease Prevention and Control",
                 theme = "red.pal", scale = 3000,tabtitle=TRUE, bg = "grey90")
     
@@ -175,13 +176,13 @@ graph.ani_2 <- function() {
                           symbols = "circle", 
                           breaks = breaks_dc,
                           col = carto.pal(pal1 = "red.pal", n1 = length(breaks_dc)),
-                          legend.var.pos = c(-14510629, 1332030),
+                          legend.var.pos = c(-14837116, 1255491),
                           legend.var2.pos =  c(-17741861, 1380988),
                           legend.var2.values.rnd = 0,
                           border="black",
                           lwd=0.2, colNA = NA,
-                          legend.var.title.txt = "Nombre de décés",
-                          legend.var2.title.txt = "Nombre pour \n 1M d'hab.", 
+                          legend.var.title.txt = "Nombre de décès",
+                          legend.var2.title.txt = "Nombre de décès \n pour 1M d'habitants", 
                           add = TRUE)
     plot(UE_Mask, lwd = 0.3,  col=NA, add=TRUE)
     text(-851330.7, 9850732, newdate, font=4, cex=1.4)
@@ -194,7 +195,117 @@ graph.ani_2 <- function() {
 
 unlink("Map_world_covid19_deaths.gif")
 ani.options(ani.width=800)
-saveGIF(graph.ani_2(), interval = 1,  cmd.fun = system,  movie.name = "Map_world_covid19_deaths.gif")
+saveGIF(graph.ani_2(), interval = 0.9,  cmd.fun = system,  movie.name = "Map_world_covid19_deaths.gif")
+
+# set date in english
+Sys.setlocale("LC_TIME", "English")
+
+# Carte animée des CASES - EN
+graph.ani <- function() {
+  for (i in 1:length(cal)){
+    
+    
+    temp <- covid_world[as.Date(covid_world$cal) %in%  cal[i], ]
+    
+    temp <- merge(WORLD2, temp, by.x="CODE_ISO3", by.y="cc")
+    
+    
+    cc_cas <- temp[temp$cumsum_cas>0,]
+    
+    newdate <- format(cal[i], "%d %B %Y")
+    
+    par(mar=c(0.5,0.5,1.2,0.5))
+    plot(st_geometry(WORLD2), col = "grey85", border = "grey75", lwd=0.1)
+    layoutLayer(title = "Cumulative number of official confirmed cases",
+                author = "Author: Hugues Pecout (CNRS, FR CIST)",
+                sources = "Source : European Centre for Disease Prevention and Control",
+                theme = "sand.pal", scale = 3000,tabtitle=TRUE, bg = "grey90")
+    plot(st_geometry(WORLD2), lwd=0.1, col= "grey85", border = "grey65", add=TRUE)
+    plot(st_geometry(cc_cas), lwd=0.1, col= "grey65", border = "grey55", add=TRUE)
+    plot(Zoom_box , lwd = 0.3, col=NA, add=TRUE)
+    propSymbolsChoroLayer(temp, 
+                          var = "cumsum_cas", 
+                          var2 = "nb_cas_M", 
+                          fixmax= max_cas,
+                          inches = 0.3,
+                          symbols = "circle", 
+                          breaks = breaks_cas,
+                          col = carto.pal(pal1 = "sand.pal", n1 = length(breaks_cas)),
+                          legend.var.pos = c(-14837116, 1255491),
+                          legend.var2.pos =  c(-17741861, 1380988),
+                          legend.var2.values.rnd = 0,
+                          border="black",
+                          lwd=0.2, colNA = NA,
+                          legend.var.title.txt = "Number of cases",
+                          legend.var2.title.txt = "Number of cases \n per 1M inhabitants", 
+                          add = TRUE)
+    plot(UE_Mask, lwd = 0.3,  col=NA, add=TRUE)
+    text(-851330.7, 9850732, newdate, font=4, cex=1.4)
+    legend(x=343751.7, y=-5748705, "Affected countries", fill="grey55", bty = "n", cex=1)
+    
+    
+    
+  } 
+}
+
+unlink("World_map_spread_cases_covid19.gif")
+ani.options(ani.width=800)
+saveGIF(graph.ani(), interval = 0.9,  cmd.fun = system,  movie.name = "World_map_spread_cases_covid19.gif")
+
+
+# Carte animée des DEATH - EN
+graph.ani_2 <- function() {
+  for (i in 12:length(cal)){
+    
+    
+    temp <- covid_world[as.Date(covid_world$cal) %in%  cal[i], ]
+    temp <- merge(WORLD2, temp, by.x="CODE_ISO3", by.y="cc")
+    
+    
+    cc_dc <- temp[temp$cumsum_dc>0,]
+    
+    newdate <- format(cal[i], "%d %B %Y")
+    
+    par(mar=c(0.5,0.5,1.2,0.5))
+    plot(st_geometry(WORLD2), col = "grey85", border = "grey75", lwd=0.1)
+    
+    layoutLayer(title = "Cumulative number of official deaths",
+                author = "Author: Hugues Pecout (CNRS, FR CIST)",
+                sources = "Source: European Centre for Disease Prevention and Control",
+                theme = "red.pal", scale = 3000,tabtitle=TRUE, bg = "grey90")
+    
+    plot(st_geometry(WORLD2), lwd=0.1, col= "grey85", border = "grey65", add=TRUE)
+    plot(st_geometry(cc_dc), lwd=0.1, col= "grey65", border = "grey55", add=TRUE)
+    plot(Zoom_box , lwd = 0.3, col=NA, add=TRUE)
+    propSymbolsChoroLayer(temp, 
+                          var = "cumsum_dc", 
+                          var2 = "nb_dc_M", 
+                          fixmax= max_dc,
+                          inches = 0.3,
+                          symbols = "circle", 
+                          breaks = breaks_dc,
+                          col = carto.pal(pal1 = "red.pal", n1 = length(breaks_dc)),
+                          legend.var.pos = c(-14837116, 1255491),
+                          legend.var2.pos =  c(-17741861, 1380988),
+                          legend.var2.values.rnd = 0,
+                          border="black",
+                          lwd=0.2, colNA = NA,
+                          legend.var.title.txt = "Number of deaths",
+                          legend.var2.title.txt = "Number of deaths \n per 1M inhabitants", 
+                          add = TRUE)
+    plot(UE_Mask, lwd = 0.3,  col=NA, add=TRUE)
+    text(-851330.7, 9850732, newdate, font=4, cex=1.4)
+    legend(x=343751.7, y=-5748705, "Affected countries", fill="grey55", bty = "n", cex=1)
+    
+    
+    
+  } 
+}
+
+unlink("World_map_spread_deaths_covid19.gif")
+ani.options(ani.width=800)
+saveGIF(graph.ani_2(), interval = 0.9,  cmd.fun = system,  movie.name = "World_map_spread_deaths_covid19.gif")
+
 
 
 
